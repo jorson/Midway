@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="node_modules/jquery/dist/jquery.js"></script>
+    <script src="node_modules/lodash/lodash.js"></script>
+    <script src="dist/midway.bundle.js"></script>
+</head>
+<body>
+    <div id="app"></div>
+    <script>
+        if(window.Midway) {
+            var app = new Midway.Launcher({
+                el: "#app",
+                launcher: "demo"
+            });
+            app.init();
+        }
+    </script>
+</body>
+</html>
