@@ -1,11 +1,16 @@
 import {ScriptRender} from "./ScriptRender";
 import {ModuleComponent} from "../instance/ModuleComponent";
 import {assert} from "../utils/assert";
+import {stringUtils} from "../utils/stringUtils";
+
+import * as $ from "jquery";
+import * as _ from "lodash";
 
 class ModuleRender {
 
     constructor() {
-        this.scriptRender = new ScriptRender();
+        this.createFunctionTemplate = "Addon${type}_create";
+        this.scriptTemplate = "//# sourceURL=midway-${type}\r\n${script}";
     }
 
     /**
@@ -13,6 +18,10 @@ class ModuleRender {
      * @param moduleXML
      */
     render(moduleXML) {
+        //获取Module的名称
+        assert(moduleXML.attributes["name"] == undefined, "module name can't null");
+        let name = moduleXML.attributes["name"];
+
         //获取脚本部分
         let script = _.find(moduleXML.children, (item)=> {
             return item.name === "script" && item.children.length == 1;
@@ -29,27 +38,52 @@ class ModuleRender {
                 $view = $(item.children[0].text);
             } else if(item.name === "style") {
                 //样式
-                self.scriptRender.addEmbedStyle(item.children[0].text);
+                ScriptRender.addEmbedStyle(item.children[0].text);
             } else if(item.name === "model") {
                 //模型
-
+                $model = self._parseComponentModel(item.children[0].text);
             }
         });
 
         //将脚本加入页面中
-        this.scriptRender.addEmbedScript(script.children[0].text);
-
-        let component = new ModuleComponent({
-
-        });
+        let createFunction = stringUtils.applyTemplate(this.createFunctionTemplate, {"type": name});
+        ScriptRender.addEmbedScript(stringUtils.applyTemplate(this.scriptTemplate, {"type": createFunction, "script": script.children[0].text}));
     }
 
     _parseComponentModel(modelStr) {
         try {
             var model = JSON.parse(modelStr), parseModel = {};
             if($.isArray(model)) {
+
                 _.each(model, (item) => {
-                    switch ()
+
+                    if(item.name == undefined || item.name == ""
+                        || item.value == undefined || item.value == "") {
+                        return true;
+                    }
+
+                    if(parseModel[item.name]) {
+                        return true;
+                    }
+
+                    switch (item.type) {
+                        case "string":
+                            parseModel[item.name] = item.value;
+                            break;
+                        case "json":
+                            try {
+                                parseModel[item.name] = JSON.parse(item.value);
+                            } catch (e) {
+                                assert(true, "can't parse string to json object!");
+                            }
+                            break;
+                        case "boolean":
+                            parseModel[item.name] = item.value.toLower() === "true";
+                            break;
+                        case "integer":
+                            parseModel[item.name] = parseInt(item.value);
+                            break;
+                    }
                 });
             }
             return parseModel;

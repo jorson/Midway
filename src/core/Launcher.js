@@ -1,7 +1,7 @@
 import {assert} from "../utils/assert";
 import {parse} from "../utils/XMLParser";
 
-import ScriptRender from "../render/ScriptRender";
+
 
 class Launcher{
 

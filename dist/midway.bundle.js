@@ -33,7 +33,7 @@ var XML = (function (XMLNode) {
         this.prefix = prefix;
         this.namespace = namespace;
         this.name = name;
-        this.attribute = {};
+        this.attributes = {};
         this.children = [];
     }
 

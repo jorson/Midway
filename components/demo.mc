@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='UTF-8' ?>
-<module>
+<module name="DemoModule">
     <model>
         <![CDATA[
             [
@@ -26,7 +26,7 @@
                 Presenter.prototype.sayHello = function() {
                     console.log("Hello Component");
                 }
-                window.AddonAnswerFlowController_create = function () {
+                window.AddonDemoModule_create = function () {
                     return new Presenter();
                 }
             })();

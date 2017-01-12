@@ -1,10 +1,7 @@
-import {HashObject} from "../utils/hashObject";
-
-export class InnerEventDispatcher extends HashObject {
+class InnerEventBus {
     private listeners;
 
     public constructor() {
-        super();
         this.listeners = [];
     }
 
@@ -30,5 +27,6 @@ export class InnerEventDispatcher extends HashObject {
 
     dispatchEvent(name, type, data) {
     }
-
 }
+
+export default {InnerEventBus};
