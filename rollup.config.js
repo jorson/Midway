@@ -6,13 +6,19 @@ var path = require("path");
 module.exports = {
 
     entry: path.join(__dirname, "src/core/Launcher.js"),
-    dest: path.join(__dirname, "dist/midway.bundle.js"),
+    targets:[
+        {dest: path.join(__dirname, "dist/midway.js"), format: "cjs"},
+        {dest: path.join(__dirname, "dist/midway.es.js"), format: "es"},
+        {dest: path.join(__dirname, "dist/midway.umd.js"), format: "umd"}
+    ],
     format: "umd",
     moduleName: "Midway",
+    external: ['jquery', 'lodash'],
     plugins: [
         replace({__VERSION__: version}),
         buble()
     ],
+    context: 'window',
     banner:
         `/**
  * Midway v${version}

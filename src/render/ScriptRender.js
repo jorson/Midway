@@ -59,9 +59,9 @@ var ScriptRender = {
     addEmbedScript: (code)=> {
         let element = document.createElement("script");
         element.setAttribute("language", "Javascript");
-        element.text(code);
+        element.text = code;
         _head.appendChild(element);
     }
 };
 
-export default {ScriptRender};
+export {ScriptRender};

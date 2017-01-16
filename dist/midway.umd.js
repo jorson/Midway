@@ -33,7 +33,7 @@ var XML = (function (XMLNode) {
         this.prefix = prefix;
         this.namespace = namespace;
         this.name = name;
-        this.attribute = {};
+        this.attributes = {};
         this.children = [];
     }
 
@@ -186,7 +186,7 @@ var ScriptRender = {
     addEmbedScript: function (code){
         var element = document.createElement("script");
         element.setAttribute("language", "Javascript");
-        element.text(code);
+        element.text = code;
         _head.appendChild(element);
     }
 };
@@ -432,6 +432,25 @@ var supportFunction = {
     },
 };
 
+var this$1$1 = window;
+var requestParams = {
+    params: {},
+    get: function (){
+        return this$1$1.params;
+    }
+};
+
+var search = location.search;
+search = search.substr(1, search.length);
+var params = search.split('&');
+params.forEach(function (name){
+    var p = name.split("=");
+    var key = p[0];
+    if(key) {
+        requestParams.params[key] = decodeURIComponent(p[1]);
+    }
+});
+
 var lifecycle = {
     run: ["run"],
     show: ["pageShow"],
@@ -457,6 +476,12 @@ var ModuleComponent = (function (MidwayComponent$$1) {
         this._model = options.model;
         this._presenter = options.presenter;
         this._view = options.view;
+        //执行初始的生命周期
+        supportFunction.execute(this._presenter, {
+            "setPlayerController": this.getController(),
+            "setUrlParams": requestParams.get()
+            //"setBasePath": baseUrl
+        });
     }
 
     if ( MidwayComponent$$1 ) ModuleComponent.__proto__ = MidwayComponent$$1;
@@ -480,13 +505,13 @@ var ModuleComponent = (function (MidwayComponent$$1) {
     };
 
     ModuleComponent.prototype.runInterface = function runInterface (name, args) {
-        if(this._presenter && this._presenter.__interface) {
+        if (this._presenter && this._presenter.__interface) {
             return supportFunction.execute(this._presenter.__interface, name, args);
         }
     };
 
     ModuleComponent.prototype.destroy = function destroy () {
-        if(this._view) {
+        if (this._view) {
             this._view.remove();
         }
         this.runLifecycle("destroy");
@@ -494,24 +519,6 @@ var ModuleComponent = (function (MidwayComponent$$1) {
 
     return ModuleComponent;
 }(MidwayComponent));
-
-var this$1$1 = window;
-var search = location.search.substr(1, search.length);
-var params = search.split('&');
-params.forEach(function (name){
-    var p = name.split("=");
-    var key = p[0];
-    if(key) {
-        supportFn.params[key] = decodeURIComponent(p[1]);
-    }
-});
-
-var requestParams = {
-    params: {},
-    get: function (){
-        return this$1$1.params;
-    }
-};
 
 var ModuleRender = function ModuleRender() {
     this.createFunctionTemplate = "Addon${type}_create";
@@ -669,12 +676,6 @@ function createPresenter(fn) {
             }
         }
         this._interface = stringUtils.createReg(_interfaces);
-
-        supportFunction.execute(presenter, {
-            "setPlayerController": self.getController(),
-            "setUrlParams": requestParams.get()
-            //"setBasePath": baseUrl
-        });
     } catch (e) {
         console.error("create presenter [" + fn + "] error!");
     }
@@ -705,8 +706,11 @@ Launcher.prototype.start = function start () {
         var container = $(this._el);
         assert(container === undefined, "container is NULL!");
 
-        var moduleConfig = this._loadModuleFile(this._launcher);
-        moduleRender.render(moduleConfig, container);
+        this._loadModuleFile(this._launcher)
+            .done(function (moduleConfig) {
+                moduleRender.render(moduleConfig, container);
+            });
+
     }
 };
 

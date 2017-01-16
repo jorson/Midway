@@ -5,6 +5,7 @@ import {supportFunction} from "../utils/supportFunction";
 
 import * as $ from "jquery";
 import * as _ from "lodash";
+import {requestParams} from "../utils/Request";
 
 let presenterInterface = {
     "controller": /^(processBeforeRun|processAfterRun)$/
@@ -26,14 +27,22 @@ class ModuleComponent extends MidwayComponent {
 
         assert(options == void 0, "module component options can't NULL");
         const {
-            uuid = options.uuid ? options.uuid : stringUtils.uuid(6)
+            uuid = options.uuid ? options.uuid : stringUtils.uuid(6),
             presenter = options.presenter,
             model = options.model,
-            view = $.isPlainObject() options.view
+            view = (options.view instanceof jQuery) ? options.view : undefined
         } = options;
 
-        this._enterFn = options.enterFn;
+        this._uuid = options.uuid;
         this._model = options.model;
+        this._presenter = options.presenter;
+        this._view = options.view;
+        //执行初始的生命周期
+        supportFunction.execute(this._presenter, {
+            "setPlayerController": this.getController(),
+            "setUrlParams": requestParams.get()
+            //"setBasePath": baseUrl
+        });
     }
 
     runLifecycle(name) {
@@ -43,50 +52,27 @@ class ModuleComponent extends MidwayComponent {
         let taskList = [];
         lifecycle[name].forEach((lifecycleName)=> {
             taskList.push({
+                fn: self._presenter[lifecycleName],
+                args: [self._view, self._model],
+                scope: self._presenter,
+                name: self._uuid + ":" + lifecycleName
             })
         });
+        return supportFunction.runSequence(taskList, "run component lifecycle");
     }
 
     runInterface(name, args) {
-
-    }
-}
-
-/**
- * 创建Presenter对象
- */
-function createPresenter(fn) {
-    assert(window[fn] == undefined, "presenter enter function is NULL;" + fn);
-
-    let presenter = {};
-    try {
-        var self = this;
-        presenter = window[fn].call(window);
-        //如果Presenter对象中包含__interface
-        let _interfaces = [];
-        if (presenter.__interface) {
-            //查找所有__interface中的方法
-            for (let name in presenter.__interface) {
-                for (var key in presenterInterface) {
-                    if (presenterInterface[key].test(name)) {
-                        _interfaces.push(key);
-                    }
-                }
-            }
+        if (this._presenter && this._presenter.__interface) {
+            return supportFunction.execute(this._presenter.__interface, name, args);
         }
-        this._interface = stringUtils.createReg(_interfaces);
-
-        supportFunction.execute(presenter, {
-            "setPlayerController": self.getController(),
-            "setUrlParams": request.get(),
-            "setBasePath": baseUrl
-        })
-    } catch (e) {
-        console.error("create presenter [" + fn + "] error!");
     }
 
-    return presenter;
+    destroy() {
+        if (this._view) {
+            this._view.remove();
+        }
+        this.runLifecycle("destroy");
+    }
 }
 
-
-export default {ModuleComponent};
+export {ModuleComponent};

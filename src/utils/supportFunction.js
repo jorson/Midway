@@ -1,5 +1,5 @@
 export var supportFunction = {
-    "runSequence": (fnConfigs, name)=> {
+    runSequence: (fnConfigs, name)=> {
         let $promise = $.Deferred().resolve();
         let runIndex;
 
@@ -30,7 +30,7 @@ export var supportFunction = {
         });
     },
 
-    "execute": (instance, injections, args, isCheck)=> {
+    execute: (instance, injections, args, isCheck)=> {
         //参数整理
         let singleExecuteName = '';
         let result = {};
@@ -54,7 +54,7 @@ export var supportFunction = {
         return (singleExecuteName) ? result[singleExecuteName] : result;
     },
 
-    "createDelegate": (fn, args, isAppendArgs, scope, exceptionHandler)=> {
+    createDelegate: (fn, args, isAppendArgs, scope, exceptionHandler)=> {
         return () => {
             //如果创建的时候没有输入参数，使用调用的参数
             let callArgs = args || arguments;
@@ -75,7 +75,7 @@ export var supportFunction = {
         };
     },
 
-    'defer': (millis, fn, args, appendArgs, scope) => {
+    defer: (millis, fn, args, appendArgs, scope) => {
         let callFn = functionHelper.createDelegate(fn, args, appendArgs, scope);
         if (millis > 0) {
             return window.setTimeout(callFn, millis);
@@ -85,7 +85,7 @@ export var supportFunction = {
         return 0;
     },
 
-    'createPromiseThen': (deferred, fn, args, isAppendArgs, scope)=> {
+    createPromiseThen: (deferred, fn, args, isAppendArgs, scope)=> {
         if (!$.isFunction(deferred.reject)) {
             scope = isAppendArgs;
             isAppendArgs = args;

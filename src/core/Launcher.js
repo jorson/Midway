@@ -1,7 +1,9 @@
 import {assert} from "../utils/assert";
 import {parse} from "../utils/XMLParser";
 
+import {ModuleRender} from "../render/ModuleRender";
 
+let moduleRender = new ModuleRender();
 
 class Launcher{
 
@@ -18,26 +20,30 @@ class Launcher{
 
         this._launcher = options.launcher;
         this._modulePath = modulePath;
+        this._el = options.el;
     }
 
     start() {
         if(window.$) {
-            let container = $(el);
+            let container = $(this._el);
             assert(container === undefined, "container is NULL!");
-            this._container = container;
+
+            this._loadModuleFile(this._launcher)
+                .done((moduleConfig) => {
+                    moduleRender.render(moduleConfig, container);
+                });
+
         }
-        this._loadModuleFile(this._launcher);
     }
 
     //加载模块文件
     _loadModuleFile(moduleName) {
         let fullPath = this._modulePath + "/" + moduleName + ".mc";
-        $.ajax({
+        return $.ajax({
             url: fullPath,
             method: "GET"
         }).then(function (data) {
-            let xmlContent = parse(data);
-            console.log(xmlContent);
+            return parse(data);
         }).fail(function () {
             throw new Error("can't load module component file:" + fullPath);
         });

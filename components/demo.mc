@@ -26,6 +26,12 @@
                 Presenter.prototype.sayHello = function() {
                     console.log("Hello Component");
                 }
+                Presenter.prototype.setPlayerController = function(controller) {
+                    console.log("From Component", controller);
+                }
+                Presenter.prototype.setUrlParams = function(params) {
+                    console.log("From Component", params);
+                }
                 window.AddonDemoModule_create = function () {
                     return new Presenter();
                 }

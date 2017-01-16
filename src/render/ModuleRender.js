@@ -1,11 +1,9 @@
-import * as $ from "jquery";
-import * as _ from "lodash";
-
 import {ScriptRender} from "./ScriptRender";
 import {ModuleComponent} from "../instance/ModuleComponent";
 import {assert} from "../utils/assert";
 import {stringUtils} from "../utils/stringUtils";
 import {supportFunction} from "../utils/supportFunction";
+import {requestParams} from "../utils/Request"
 
 class ModuleRender {
 
@@ -164,12 +162,6 @@ function createPresenter(fn) {
             }
         }
         this._interface = stringUtils.createReg(_interfaces);
-
-        supportFunction.execute(presenter, {
-            "setPlayerController": self.getController(),
-            "setUrlParams": request.get(),
-            "setBasePath": baseUrl
-        })
     } catch (e) {
         console.error("create presenter [" + fn + "] error!");
     }
@@ -178,4 +170,4 @@ function createPresenter(fn) {
 }
 
 
-export default {ModuleRender};
+export {ModuleRender};

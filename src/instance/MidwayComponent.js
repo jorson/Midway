@@ -8,5 +8,24 @@ class MidwayComponent {
         this._eventbus = new InnerEventBus();
     }
 
-    destroy() { }
+    createController() {
+        return {};
+    }
+
+    getController() {
+        return this.controller || (this.controller = this.createController());
+    }
+
+    destroy() {
+    }
+
+    fireEvent(name) {
+        InnerEventBus.prototype.dispatch.apply(this._eventbus, arguments);
+    }
+
+    addEventListener(name) {
+        InnerEventBus.prototype.addEventListener(this._eventbus, arguments);
+    }
 }
+
+export {MidwayComponent};
